@@ -1,417 +1,326 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>CAT ROYALE</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#101923">
+<title>CAT ROYALE — Wild Grounds</title>
 <style>
-* { box-sizing: border-box; }
-html, body {
-  margin: 0; width: 100%; height: 100%;
-  overflow: hidden; background: #9bb1bd;
-  font-family: system-ui, sans-serif;
-  touch-action: none;
-}
-canvas { display: block; }
-#hud {
-  position: fixed; top: 14px; left: 14px; right: 14px;
-  display: flex; justify-content: space-between;
-  color: white; pointer-events: none; z-index: 2;
-}
-.panel {
-  background: #263642e8; padding: 12px 16px;
-  border-radius: 14px; font-weight: 700;
-  box-shadow: 0 2px 8px #0003;
-}
-.small { font-size: 11px; color: #c5d1d8; }
-#message {
-  position: fixed; left: 50%; top: 43%;
-  transform: translate(-50%,-50%);
-  color: white; font-size: clamp(22px,4vw,40px);
-  font-weight: 900; text-shadow: 0 3px 5px #0008;
-  text-align: center; pointer-events: none; z-index: 2;
-}
-#status {
-  position: fixed; top: 90px; left: 50%;
-  transform: translateX(-50%); color: white;
-  background: #263642dd; padding: 8px 12px;
-  border-radius: 9px; font-size: 13px;
-  text-align: center; z-index: 5; max-width: 90%;
-}
-#help {
-  position: fixed; bottom: 12px; left: 12px;
-  color: white; background: #263642d9;
-  border-radius: 10px; padding: 9px 12px;
-  font-size: 12px; z-index: 2; pointer-events: none;
-}
-#start {
-  position: fixed; inset: 0; z-index: 10;
-  display: flex; align-items: center; justify-content: center;
-  background: #15232bcc; color: white; text-align: center;
-  padding: 24px;
-}
-#start button {
-  border: 0; border-radius: 14px; padding: 15px 26px;
-  font-size: 18px; font-weight: 800;
-  background: #f3f6f7; color: #243541;
-}
+:root{--glass:rgba(12,22,32,.8);--line:#ffffff30;--mint:#a9f5d0}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#9bb4c2;color:white;font-family:system-ui,sans-serif;touch-action:none}
+canvas{display:block}
+#top{position:fixed;inset:env(safe-area-inset-top,0) 0 auto;padding:12px;display:flex;justify-content:space-between;gap:8px;pointer-events:none;z-index:2}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:15px;padding:10px 13px;backdrop-filter:blur(9px);box-shadow:0 6px 22px #0002}
+.eyebrow{font-size:10px;letter-spacing:.13em;color:#b9cbd5;font-weight:800}
+.big{font-size:19px;font-weight:900}
+.sub{font-size:11px;color:#c3d3dc}
+#objective{position:fixed;top:88px;left:50%;transform:translateX(-50%);z-index:2;background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:8px 13px;font-size:12px;white-space:nowrap}
+#toast{position:fixed;top:48%;left:50%;transform:translate(-50%,-50%);z-index:4;background:#0c1620dc;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13px;text-align:center;max-width:90vw;pointer-events:none}
+#bottom{position:fixed;inset:auto 0 env(safe-area-inset-bottom,0);padding:14px;display:flex;justify-content:space-between;align-items:end;z-index:3;pointer-events:none}
+#joy{width:116px;height:116px;border-radius:50%;border:1px solid #ffffff66;background:#101d2a66;position:relative;pointer-events:auto;touch-action:none;backdrop-filter:blur(5px)}
+#knob{width:46px;height:46px;border-radius:50%;position:absolute;left:35px;top:35px;background:#d9fff0dd;border:2px solid white;box-shadow:0 3px 10px #0003}
+#hint{font-size:11px;background:var(--glass);border:1px solid var(--line);padding:9px 12px;border-radius:12px;text-align:right;line-height:1.6}
+#start{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:22px;background:linear-gradient(145deg,#07131de8,#102b39c7);backdrop-filter:blur(8px)}
+#box{width:min(520px,100%);padding:28px;border:1px solid #ffffff2c;border-radius:25px;background:linear-gradient(145deg,#213947f5,#101b28f5);box-shadow:0 24px 80px #0005}
+.logo{font-size:clamp(32px,7vw,54px);font-weight:1000;letter-spacing:-.05em;line-height:1}
+.logo span{color:var(--mint)}
+.tag{margin-top:12px;color:#c5d8e0;font-size:14px;line-height:1.7}
+#startbtn{margin-top:20px;width:100%;border:0;border-radius:14px;padding:15px;background:var(--mint);color:#0b2020;font-weight:900;font-size:16px}
+#startbtn:disabled{opacity:.5}
+.note{font-size:11px;color:#9fb5c1;line-height:1.6;margin-top:14px}
+#bar{height:4px;background:#ffffff1c;border-radius:5px;overflow:hidden;margin-top:18px}
+#fill{height:100%;width:5%;background:var(--mint);transition:width .25s}
+#debug{position:fixed;right:10px;bottom:145px;z-index:3;font-size:10px;color:#e0edf1;background:#0c1620a6;border-radius:8px;padding:6px 8px;max-width:75vw;display:none}
 </style>
 </head>
 <body>
-<div id="hud">
-  <div class="panel">
-    <div class="small">PLAYER STATUS</div>
-    <div>CAT EXPLORER</div>
-    <div class="small">ステージを探検しよう</div>
-  </div>
-  <div class="panel" style="text-align:right">
-    <div class="small">CAT FRIENDS</div>
-    <div id="count">0</div>
-  </div>
+<div id="top">
+  <div class="card"><div class="eyebrow">CAT ROYALE / EXPLORATION</div><div class="big">WILD GROUNDS</div><div class="sub">猫たちのフィールドへ</div></div>
+  <div class="card" style="text-align:right"><div class="eyebrow">CAT FRIENDS</div><div class="big" id="count">--</div><div class="sub">探検中</div></div>
 </div>
-
-<div id="message">生き残ってみせろ。</div>
-<div id="status">3Dステージを読み込み中…</div>
-
-<div id="help">
-  左側：移動<br>
-  右側：視点変更<br>
-  PC：WASD / マウス
+<div id="objective">目的：ステージを探検して猫たちを見つけよう</div>
+<div id="toast">3Dエンジンを準備中…</div>
+<div id="bottom">
+  <div id="joy"><div id="knob"></div></div>
+  <div id="hint">左のスティック：移動<br>右側をドラッグ：視点変更<br>PC：WASD / 矢印キー</div>
 </div>
-
+<div id="debug"></div>
 <div id="start">
-  <div>
-    <h1>🐱 CAT ROYALE</h1>
-    <p>広いステージを探検して、猫たちを見つけよう！</p>
-    <button id="startBtn">ゲームスタート</button>
-    <p class="small">開始するとBGMを再生します</p>
+  <div id="box">
+    <div class="eyebrow">A LITTLE WORLD FULL OF CATS</div>
+    <div class="logo">CAT <span>ROYALE</span></div>
+    <div class="tag">生き残ってみせろ。<br>広いフィールドを歩き、猫たちを見つけよう。</div>
+    <div id="bar"><div id="fill"></div></div>
+    <div id="loadtext" class="note">素材を読み込み中…</div>
+    <button id="startbtn" disabled>読み込み中…</button>
+    <div class="note">左側で移動、右側をドラッグして視点変更。BGMは開始後に再生されます。</div>
   </div>
 </div>
-
-<audio id="bgm" loop preload="auto"></audio>
+<audio id="bgm" loop preload="none"></audio>
 
 <script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-  }
-}
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
 </script>
-
 <script type="module">
 import * as THREE from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 
-const $ = id => document.getElementById(id);
-const status = $("status");
+const $=id=>document.getElementById(id);
+const paths=n=>["./"+n,"./assets/"+n];
+function say(s,p){$("loadtext").textContent=s;$("toast").textContent=s;if(p!==undefined)$("fill").style.width=p+"%";}
 
-let scene, camera, renderer, stage;
-let started = false;
-let yaw = 0, pitch = 0;
-let moveX = 0, moveZ = 0;
-let lastTime = 0;
-const keys = {};
-const cats = [];
-const loader = new GLTFLoader();
-const clock = new THREE.Clock();
+let scene,camera,renderer,clock,started=false,yaw=0,pitch=0,mx=0,my=0,stage;
+const keys={},cats=[],loader=new GLTFLoader();
 
-function say(text) {
-  status.textContent = text;
-}
+function init(){
+  scene=new THREE.Scene();
+  scene.background=new THREE.Color(0x9bb7c5);
+  scene.fog=new THREE.Fog(0x9bb7c5,100,360);
+  camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.1,1500);
+  camera.position.set(0,2,12);
+  camera.rotation.order="YXZ";
 
-function candidates(name) {
-  return ["./" + name, "./assets/" + name];
-}
-
-async function loadGLB(name) {
-  let lastError;
-  for (const url of candidates(name)) {
-    try {
-      return await new Promise((resolve, reject) => {
-        loader.load(url, resolve, undefined, reject);
-      });
-    } catch (e) {
-      lastError = e;
-      console.warn("読み込み失敗:", url, e);
-    }
-  }
-  throw lastError || new Error(name + " が見つかりません");
-}
-
-async function loadImageTexture(name) {
-  let lastError;
-  for (const url of candidates(name)) {
-    try {
-      const texture = await new Promise((resolve, reject) => {
-        new THREE.TextureLoader().load(url, resolve, undefined, reject);
-      });
-      texture.colorSpace = THREE.SRGBColorSpace;
-      return texture;
-    } catch (e) {
-      lastError = e;
-    }
-  }
-  throw lastError || new Error(name + " が見つかりません");
-}
-
-function initThree() {
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x9bb1bd);
-  scene.fog = new THREE.Fog(0x9bb1bd, 100, 500);
-
-  camera = new THREE.PerspectiveCamera(
-    75, innerWidth / innerHeight, 0.1, 1000
-  );
-  camera.position.set(0, 2, 8);
-  camera.rotation.order = "YXZ";
-
-  renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    powerPreference: "high-performance"
-  });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
-  renderer.setSize(innerWidth, innerHeight);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:"high-performance"});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+  renderer.setSize(innerWidth,innerHeight);
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.1;
   document.body.appendChild(renderer.domElement);
 
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x596657, 2));
-
-  const sun = new THREE.DirectionalLight(0xffffff, 2);
-  sun.position.set(40, 80, 30);
+  scene.add(new THREE.HemisphereLight(0xeaf7ff,0x59685a,2));
+  const sun=new THREE.DirectionalLight(0xffe7c4,2.3);
+  sun.position.set(40,90,25);
   scene.add(sun);
 
-  const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(1000, 1000),
-    new THREE.MeshStandardMaterial({ color: 0x879487 })
+  const floor=new THREE.Mesh(
+    new THREE.PlaneGeometry(1000,1000),
+    new THREE.MeshStandardMaterial({color:0x7f927e,roughness:1})
   );
-  ground.rotation.x = -Math.PI / 2;
-  ground.position.y = -0.15;
-  scene.add(ground);
+  floor.rotation.x=-Math.PI/2;
+  floor.position.y=-.08;
+  scene.add(floor);
+
+  const grid=new THREE.GridHelper(500,100,0x718774,0x819580);
+  grid.position.y=-.06;
+  grid.material.transparent=true;
+  grid.material.opacity=.15;
+  scene.add(grid);
+  clock=new THREE.Clock();
 }
 
-async function loadStage() {
-  try {
-    const gltf = await loadGLB("stage.glb");
-    stage = gltf.scene;
+async function glb(n){
+  let err;
+  for(const p of paths(n)){
+    try{
+      return await new Promise((res,rej)=>loader.load(p,res,undefined,rej));
+    }catch(e){err=e;}
+  }
+  throw err||Error(n+" not found");
+}
 
-    stage.traverse(obj => {
-      if (obj.isMesh) {
-        obj.castShadow = false;
-        obj.receiveShadow = false;
-        if (obj.material) {
-          obj.material.side = THREE.DoubleSide;
+async function tex(n){
+  let err;
+  for(const p of paths(n)){
+    try{
+      return await new Promise((res,rej)=>new THREE.TextureLoader().load(
+        p,t=>{t.colorSpace=THREE.SRGBColorSpace;res(t)},undefined,rej
+      ));
+    }catch(e){err=e;}
+  }
+  throw err||Error(n+" not found");
+}
+
+function addStage(g){
+  stage=g.scene;
+  stage.updateMatrixWorld(true);
+  const b=new THREE.Box3().setFromObject(stage);
+  const s=b.getSize(new THREE.Vector3());
+  const c=b.getCenter(new THREE.Vector3());
+  const max=Math.max(s.x,s.y,s.z);
+  if(!isFinite(max)||max<.0001)throw Error("GLBに形状がありません");
+
+  const k=120/max;
+  stage.scale.setScalar(k);
+  stage.position.set(-c.x*k,-b.min.y*k,-c.z*k);
+
+  stage.traverse(o=>{
+    if(o.isMesh){
+      o.frustumCulled=false;
+      if(o.material){
+        for(const m of (Array.isArray(o.material)?o.material:[o.material])){
+          m.side=THREE.DoubleSide;
+          m.needsUpdate=true;
         }
       }
-    });
-
-    const box = new THREE.Box3().setFromObject(stage);
-    const center = box.getCenter(new THREE.Vector3());
-
-    stage.position.x -= center.x;
-    stage.position.z -= center.z;
-
-    scene.add(stage);
-    say("ステージ読み込み成功！");
-    return true;
-  } catch (e) {
-    console.error(e);
-    say("stage.glbを読み込めません。ファイル名と場所を確認してね。");
-    return false;
-  }
-}
-
-async function loadCats() {
-  try {
-    const texture = await loadImageTexture("cat.png");
-    const material = new THREE.SpriteMaterial({
-      map: texture,
-      transparent: true,
-      alphaTest: 0.05
-    });
-
-    for (let i = 0; i < 12; i++) {
-      const sprite = new THREE.Sprite(material);
-      sprite.scale.set(2.2, 2.2, 1);
-
-      const angle = Math.random() * Math.PI * 2;
-      const distance = 12 + Math.random() * 55;
-      sprite.position.set(
-        Math.sin(angle) * distance,
-        1.1,
-        Math.cos(angle) * distance
-      );
-
-      sprite.userData.phase = Math.random() * 10;
-      scene.add(sprite);
-      cats.push(sprite);
-    }
-
-    $("count").textContent = cats.length + " 匹";
-    return true;
-  } catch (e) {
-    console.error(e);
-    say("cat.pngを読み込めません。ファイル名と場所を確認してね。");
-    return false;
-  }
-}
-
-async function loadMusic() {
-  const audio = $("bgm");
-  for (const url of candidates("bgm.mp3")) {
-    try {
-      const response = await fetch(url, { method: "HEAD" });
-      if (response.ok) {
-        audio.src = url;
-        return true;
-      }
-    } catch (e) {}
-  }
-  console.warn("bgm.mp3が見つかりません");
-  return false;
-}
-
-function setupControls() {
-  addEventListener("keydown", e => {
-    keys[e.key.toLowerCase()] = true;
-  });
-
-  addEventListener("keyup", e => {
-    keys[e.key.toLowerCase()] = false;
-  });
-
-  let activeMove = null;
-  let activeLook = null;
-  let prevX = 0, prevY = 0;
-
-  renderer.domElement.addEventListener("pointerdown", e => {
-    if (!started) return;
-    renderer.domElement.setPointerCapture(e.pointerId);
-
-    if (e.clientX < innerWidth * 0.45) {
-      activeMove = e.pointerId;
-      moveX = 0;
-      moveZ = 0;
-    } else {
-      activeLook = e.pointerId;
-      prevX = e.clientX;
-      prevY = e.clientY;
     }
   });
 
-  renderer.domElement.addEventListener("pointermove", e => {
-    if (e.pointerId === activeMove) {
-      const rect = renderer.domElement.getBoundingClientRect();
-      moveX = THREE.MathUtils.clamp(
-        (e.clientX / rect.width - 0.2) * 2, -1, 1
-      );
-      moveZ = THREE.MathUtils.clamp(
-        (e.clientY / rect.height - 0.75) * 2, -1, 1
-      );
-    }
-
-    if (e.pointerId === activeLook) {
-      yaw -= (e.clientX - prevX) * 0.004;
-      pitch -= (e.clientY - prevY) * 0.003;
-      pitch = THREE.MathUtils.clamp(pitch, -1.2, 1.2);
-      prevX = e.clientX;
-      prevY = e.clientY;
-    }
-  });
-
-  function release(e) {
-    if (e.pointerId === activeMove) {
-      activeMove = null;
-      moveX = 0;
-      moveZ = 0;
-    }
-    if (e.pointerId === activeLook) activeLook = null;
-  }
-
-  renderer.domElement.addEventListener("pointerup", release);
-  renderer.domElement.addEventListener("pointercancel", release);
+  scene.add(stage);
+  stage.updateMatrixWorld(true);
+  const b2=new THREE.Box3().setFromObject(stage);
+  camera.position.set(0,Math.max(2,(b2.max.y-b2.min.y)*.035),Math.max(8,(b2.max.z-b2.min.z)*.32));
+  $("debug").textContent=`Stage OK · ${Math.round(b2.max.x-b2.min.x)} × ${Math.round(b2.max.y-b2.min.y)} × ${Math.round(b2.max.z-b2.min.z)}`;
+  $("debug").style.display="block";
 }
 
-function update(dt) {
-  if (!started) return;
+async function addCats(){
+  const t=await tex("cat.png");
+  const m=new THREE.SpriteMaterial({map:t,transparent:true,alphaTest:.04,depthWrite:false});
+  for(let i=0;i<12;i++){
+    const c=new THREE.Sprite(m);
+    const a=i/12*Math.PI*2,r=18+Math.random()*38;
+    c.scale.set(2.8,2.8,1);
+    c.position.set(Math.cos(a)*r,1.4,Math.sin(a)*r);
+    c.userData={phase:Math.random()*6,home:c.position.clone(),seed:Math.random()*4};
+    scene.add(c);
+    cats.push(c);
+  }
+  $("count").textContent=cats.length+" 匹";
+}
 
-  let x = moveX;
-  let z = moveZ;
+async function music(){
+  for(const p of paths("bgm.mp3")){
+    try{
+      const r=await fetch(p,{method:"HEAD"});
+      if(r.ok){$("bgm").src=p;return;}
+    }catch(e){}
+  }
+}
 
-  if (keys["a"] || keys["arrowleft"]) x -= 1;
-  if (keys["d"] || keys["arrowright"]) x += 1;
-  if (keys["w"] || keys["arrowup"]) z -= 1;
-  if (keys["s"] || keys["arrowdown"]) z += 1;
+function controls(){
+  addEventListener("keydown",e=>keys[e.key.toLowerCase()]=true);
+  addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
 
-  const length = Math.hypot(x, z);
-  if (length > 1) {
-    x /= length;
-    z /= length;
+  const joy=$("joy"),knob=$("knob");
+  let mid=null,lid=null,px=0,py=0;
+
+  function jm(e){
+    const r=joy.getBoundingClientRect();
+    const dx0=e.clientX-(r.left+r.width/2);
+    const dy0=e.clientY-(r.top+r.height/2);
+    const lim=r.width*.34,l=Math.hypot(dx0,dy0);
+    const dx=l>lim?dx0*lim/l:dx0;
+    const dy=l>lim?dy0*lim/l:dy0;
+    knob.style.left=(r.width/2-23+dx)+"px";
+    knob.style.top=(r.height/2-23+dy)+"px";
+    mx=dx/lim;my=dy/lim;
   }
 
-  const speed = 12 * dt;
-  camera.position.x +=
-    (Math.cos(yaw) * x + Math.sin(yaw) * z) * speed;
-  camera.position.z +=
-    (Math.sin(yaw) * x - Math.cos(yaw) * z) * speed;
+  joy.addEventListener("pointerdown",e=>{
+    mid=e.pointerId;joy.setPointerCapture(e.pointerId);jm(e);
+  });
+  joy.addEventListener("pointermove",e=>{if(e.pointerId===mid)jm(e);});
+  function endMove(e){
+    if(e.pointerId===mid){
+      mid=null;mx=my=0;knob.style.left="35px";knob.style.top="35px";
+    }
+  }
+  joy.addEventListener("pointerup",endMove);
+  joy.addEventListener("pointercancel",endMove);
 
-  camera.position.y = 2;
-  camera.rotation.set(pitch, yaw, 0, "YXZ");
+  renderer.domElement.addEventListener("pointerdown",e=>{
+    if(started&&e.clientX>innerWidth*.34){
+      lid=e.pointerId;px=e.clientX;py=e.clientY;
+      renderer.domElement.setPointerCapture(e.pointerId);
+    }
+  });
+  renderer.domElement.addEventListener("pointermove",e=>{
+    if(e.pointerId!==lid)return;
+    yaw-=(e.clientX-px)*.0045;
+    pitch=THREE.MathUtils.clamp(pitch-(e.clientY-py)*.003,-1.05,1.05);
+    px=e.clientX;py=e.clientY;
+  });
+  const endLook=e=>{if(e.pointerId===lid)lid=null;};
+  renderer.domElement.addEventListener("pointerup",endLook);
+  renderer.domElement.addEventListener("pointercancel",endLook);
+}
 
-  cats.forEach(cat => {
-    cat.userData.phase += dt;
-    cat.position.y = 1.1 + Math.sin(cat.userData.phase * 2) * 0.08;
+function update(dt,t){
+  if(started){
+    let x=mx,z=my;
+    if(keys.a||keys.arrowleft)x--;
+    if(keys.d||keys.arrowright)x++;
+    if(keys.w||keys.arrowup)z--;
+    if(keys.s||keys.arrowdown)z++;
+    const l=Math.hypot(x,z);
+    if(l>1){x/=l;z/=l;}
+    camera.position.x+=(Math.cos(yaw)*x+Math.sin(yaw)*z)*11*dt;
+    camera.position.z+=(Math.sin(yaw)*x-Math.cos(yaw)*z)*11*dt;
+    camera.position.y=2;
+    camera.rotation.set(pitch,yaw,0,"YXZ");
+  }
+
+  cats.forEach(c=>{
+    const p=t*.8+c.userData.phase;
+    c.position.x=c.userData.home.x+Math.sin(p*.7+c.userData.seed)*2;
+    c.position.z=c.userData.home.z+Math.cos(p*.55+c.userData.seed)*2;
+    c.position.y=1.35+Math.sin(p*2)*.12;
   });
 }
 
-function animate() {
+function animate(){
   requestAnimationFrame(animate);
-  const dt = Math.min(clock.getDelta(), 0.05);
-  update(dt);
-  renderer.render(scene, camera);
+  const dt=Math.min(clock.getDelta(),.04);
+  update(dt,clock.elapsedTime);
+  renderer.render(scene,camera);
 }
 
-addEventListener("resize", () => {
-  if (!camera || !renderer) return;
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+addEventListener("resize",()=>{
+  if(camera){
+    camera.aspect=innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+  }
 });
 
-async function main() {
-  initThree();
-  setupControls();
+async function main(){
+  init();
+  controls();
+  say("3Dステージを読み込み中…",15);
+  let okS=false,okC=false;
 
-  const stageOK = await loadStage();
-  const catsOK = await loadCats();
-  await loadMusic();
-
-  if (stageOK && catsOK) {
-    say("準備完了！スタートを押してね。");
-  } else {
-    say("一部の素材が未読込です。GitHubのファイル名を確認してね。");
+  try{
+    addStage(await glb("stage.glb"));
+    okS=true;
+    say("ステージを読み込みました",55);
+  }catch(e){
+    console.error(e);
+    say("stage.glbを読めません。緑の地面は代わりの表示です。",45);
+    $("debug").textContent="Stage error: "+e.message;
+    $("debug").style.display="block";
   }
 
+  try{
+    await addCats();
+    okC=true;
+    say("猫たちを配置しました",78);
+  }catch(e){
+    console.error(e);
+    say("cat.pngを読み込めません。ファイル名を確認してね。",78);
+  }
+
+  await music();
+  say(okS&&okC?"準備完了！スタートを押してね":"一部の素材が未読込です。ファイル名を確認してね",100);
+  $("startbtn").disabled=false;
+  $("startbtn").textContent="ゲームスタート";
   animate();
 }
 
-$("startBtn").addEventListener("click", async () => {
-  started = true;
-  $("start").style.display = "none";
-  $("message").style.display = "none";
-
-  const audio = $("bgm");
-  try {
-    await audio.play();
-  } catch (e) {
-    say("BGMは再生できませんでした。画面をタップして再試行してね。");
-  }
+$("startbtn").addEventListener("click",async()=>{
+  started=true;
+  $("start").style.display="none";
+  $("toast").style.display="none";
+  try{if($("bgm").src)await $("bgm").play();}catch(e){}
 });
 
-main().catch(e => {
+main().catch(e=>{
   console.error(e);
-  say("起動エラー: " + (e.message || e));
+  say("起動エラー："+e.message);
+  $("startbtn").disabled=false;
+  $("startbtn").textContent="ゲームスタート";
 });
 </script>
 </body>
